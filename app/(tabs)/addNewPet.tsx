@@ -47,7 +47,6 @@ export default function addNewPet() {
       style={styles.container}
       keyboardShouldPersistTaps="handled"
     >
-        
       <View style={styles.inputContainer}>
         <PhotoPicker
           label="Escolha uma foto do seu pet"
@@ -89,6 +88,13 @@ export default function addNewPet() {
           placeholder="dd/mm/aaaa"
           onChange={setDatePet}
           value={datePet}
+        />
+        <InputText
+          label="Descrição"
+          placeholder="Digite uma breve descrição do seu pet"
+          obrigatorio={true}
+          inputMode="text"
+          keyboardType="default"
         />
         <View style={styles.buttonContainer}>
           <HighlightButton

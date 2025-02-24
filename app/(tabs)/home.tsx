@@ -32,7 +32,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     gap: 40,
-    marginVertical: 50,
+    marginTop: 80,
+    marginBottom: 40,
     alignItems: "center",
     backgroundColor: "transparent",
   },

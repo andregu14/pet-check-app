@@ -10,7 +10,7 @@ export default function PetCard() {
         </View>
         <View style={styles.separator} />
         <View style={styles.txtContainer}>
-            <Text></Text>
+            <Text style={{fontSize: 12}}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam non eros in diam dignissim mollis porttitor quis leo. Sed et urna non ex condimentum lacinia.</Text>
         </View>
     </View>
   );
@@ -47,10 +47,11 @@ const styles = StyleSheet.create({
   txtContainer: {
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 20,
   },
   separator: {
     height: 1,
-    width: "80%",
+    width: "85%",
     backgroundColor: "#D9D9D9",
     marginVertical: 20,
   }

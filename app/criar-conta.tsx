@@ -125,8 +125,7 @@ export default function CriarConta() {
             obrigatorio={true}
             inputMode="tel"
             value={celular}
-            onChangeText={(text) => setCelular(formatPhoneNumber(text))
-            }
+            onChangeText={(text) => setCelular(formatPhoneNumber(text))}
             maxLength={15}
           />
           <Select
@@ -209,6 +208,14 @@ export default function CriarConta() {
             onChange={setDatePet}
             value={datePet}
           />
+          <InputText
+            label="Descrição"
+            placeholder="Digite uma breve descrição do seu pet"
+            obrigatorio={true}
+            inputMode="text"
+            keyboardType="default"
+          />
+
           <View style={styles.buttonContainer}>
             <OpacityButton
               label="Criar Conta"
