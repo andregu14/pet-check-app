@@ -7,7 +7,7 @@ export interface Pet {
   tipo: string | null;
   raca: string;
   sexo: string | null;
-  nascimento: string | null | Date;
+  nascimento: string | null;
   description: string;
   foto?: string;
 }
@@ -44,7 +44,6 @@ const useOfflineStorage = (): UseOfflineStorageReturn => {
   const saveUser = useCallback(async (user: User): Promise<void> => {
     setIsLoading(true);
     try {
-      console.log("Salvando usuário:", user); // Verifique os dados antes de salvar
       // Carrega todos os usuarios existentes
       const usersJson = await AsyncStorage.getItem("users");
       const users: User[] = usersJson ? JSON.parse(usersJson) : [];
@@ -61,7 +60,6 @@ const useOfflineStorage = (): UseOfflineStorageReturn => {
       }
 
       await AsyncStorage.setItem("users", JSON.stringify(users));
-      console.log("Usuário salvo com sucesso!"); // Confirmação de sucesso
     } catch (e) {
       setError(`Erro ao salvar dados: ${e}`);
       console.error(`Save error: ${e}`);

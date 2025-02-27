@@ -36,9 +36,9 @@ interface User {
 }
 
 const genero = [
-  { title: "Masculino", value: "M" },
-  { title: "Feminino", value: "F" },
-  { title: "Prefiro não informar", value: "NI" },
+  { title: "Masculino", value: "Masculino" },
+  { title: "Feminino", value: "Feminino" },
+  { title: "Prefiro não informar", value: "Prefiro não informar" },
 ];
 
 const tipo = [
@@ -105,7 +105,7 @@ export default function CriarConta() {
         email,
         celular,
         genero: selectedGenero,
-        nascimento: date?.toISOString() || null,
+        nascimento: date?.toLocaleDateString() || null,
         password,
         pets: [{
           id: uuid.v4(),
@@ -113,7 +113,7 @@ export default function CriarConta() {
           tipo: selectedTipo,
           raca: raca,
           sexo: selectedSexo,
-          nascimento: datePet?.toISOString() || null,
+          nascimento: datePet?.toLocaleDateString() || null,
           description: description,
           foto: selectedImage
         }]
@@ -122,7 +122,7 @@ export default function CriarConta() {
     try {
       await saveUser(newUser);
       // Redirecionar
-      router.replace("/home");
+      router.replace({ pathname: "/home", params: { userID: newUser.id } });
       setShowSecondForm(false);
     } catch (e) {
       alert("Erro ao criar conta: " + e);

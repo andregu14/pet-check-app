@@ -47,7 +47,7 @@ export default function addNewPet() {
         tipo: selectedTipo,
         raca: raca,
         sexo: selectedSexo,
-        nascimento: datePet,
+        nascimento: datePet?.toLocaleDateString() || null,
         description: description,
         foto: selectedImage,
       }
