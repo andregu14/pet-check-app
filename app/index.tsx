@@ -5,10 +5,27 @@ import InputText from "@/components/InputText/InputText";
 import { HighlightButton } from "@/components/Button/Button";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import useOfflineStorage from "@/constants/useOfflineStorage";
 
 export default function TabOneScreen() {
   const [cpfOrEmail, setCpfOrEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [inputLenght, setInputLenght] = useState(100);
+  const router = useRouter();
+
+  const { getUsers, isLoading, error } = useOfflineStorage();
+  const handleLogin = async () => {
+    const users = await getUsers();
+    const user = users.find(
+      (u: any) => u.email === cpfOrEmail && u.password === password
+    );
+
+    if (user) {
+      router.navigate({ pathname: "/home", params: { userID: user.id } });
+    } else {
+      alert("Credenciais invalidas");
+    }
+  };
 
   const formatInput = (text: string): string => {
     // Verifica se é um CPF (apenas números)
@@ -17,16 +34,23 @@ export default function TabOneScreen() {
     if (isPotentialCPF) {
       // Remove caracteres não numéricos e limita a 11 dígitos
       const numbers = text.replace(/\D/g, "").slice(0, 11);
-      
+
       // Aplica formatação do CPF
       if (numbers.length <= 3) return numbers;
-      if (numbers.length <= 6) return `${numbers.slice(0, 3)}.${numbers.slice(3)}`;
-      if (numbers.length <= 9) return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6)}`;
-      setInputLenght(14)
-      return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6, 9)}-${numbers.slice(9, 11)}`;
+      if (numbers.length <= 6)
+        return `${numbers.slice(0, 3)}.${numbers.slice(3)}`;
+      if (numbers.length <= 9)
+        return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(
+          6
+        )}`;
+      setInputLenght(14);
+      return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(
+        6,
+        9
+      )}-${numbers.slice(9, 11)}`;
     } else {
       // Permite digitação normal para e-mails
-      setInputLenght(100)
+      setInputLenght(100);
       return text;
     }
   };
@@ -41,7 +65,6 @@ export default function TabOneScreen() {
     loadFont();
   }, []);
 
-  const router = useRouter();
   return (
     <View style={styles.container}>
       <View style={styles.loginContainer}>
@@ -65,6 +88,8 @@ export default function TabOneScreen() {
           password={true}
           autoCapitalize="none"
           autoComplete="password"
+          value={password}
+          onChangeText={setPassword}
         />
         <Text
           style={styles.passwordRecoverText}
@@ -75,7 +100,7 @@ export default function TabOneScreen() {
         <HighlightButton
           label="Entrar"
           style={styles.enterButton}
-          onPress={() => router.push("/home")}
+          onPress={handleLogin}
         />
         <Text
           style={styles.newAccountText}

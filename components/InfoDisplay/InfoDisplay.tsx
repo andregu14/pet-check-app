@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 
 type InfoDisplayProps = {
   label: string;
-  info: string;
+  info: string | undefined | null;
   select?: boolean;
   date?: boolean;
 };

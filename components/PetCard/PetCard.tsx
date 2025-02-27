@@ -1,16 +1,23 @@
 import { View, StyleSheet, Image, Text } from "react-native";
 
-export default function PetCard() {
+type PetCardProps = {
+  name: string
+  raca: string
+  image?: string | undefined
+  description: string | undefined
+}
+
+export default function PetCard(props: PetCardProps) {
   return (
     <View style={styles.container}>
         <View style={styles.infoContainer}>
-            <Image style={styles.imageContainer}/>
-            <Text style={styles.txtName}>Nome do Pet</Text>
-            <Text>Raça</Text>
+            <Image style={styles.imageContainer} source={{ uri: props.image }}/>
+            <Text style={styles.txtName}>{props.name}</Text>
+            <Text>{props.raca}</Text>
         </View>
         <View style={styles.separator} />
         <View style={styles.txtContainer}>
-            <Text style={{fontSize: 12}}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam non eros in diam dignissim mollis porttitor quis leo. Sed et urna non ex condimentum lacinia.</Text>
+            <Text style={{fontSize: 12}}>{props.description}</Text>
         </View>
     </View>
   );

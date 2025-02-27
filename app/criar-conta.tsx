@@ -8,6 +8,32 @@ import { View, StyleSheet, StatusBar, Text } from "react-native";
 import { OpacityButton } from "@/components/Button/Button";
 import PhotoPicker from "@/components/PhotoPicker/PhotoPicker";
 import * as ImagePicker from "expo-image-picker";
+import useOfflineStorage from "@/constants/useOfflineStorage";
+import { useRouter } from "expo-router";
+import uuid from 'react-native-uuid';
+
+interface Pet {
+  id: string;
+  name: string;
+  tipo: string | null;
+  raca: string;
+  sexo: string | null;
+  nascimento: string | null;
+  description: string;
+  foto?: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+  cpf: string;
+  email: string;
+  celular: string;
+  genero: string | null;
+  nascimento: string | null;
+  password: string;
+  pets: Pet[];
+}
 
 const genero = [
   { title: "Masculino", value: "M" },
@@ -59,11 +85,49 @@ export default function CriarConta() {
   const [email, setEmail] = useState("");
   const [celular, setCelular] = useState("");
   const [namePet, setNamePet] = useState("");
+  const [password, setPassword] = useState("")
+  const [raca, setRaca] = useState("");
+  const [description, setDescription] = useState("");
   const [selectedGenero, setSelectedGenero] = useState(null);
   const [selectedTipo, setSelectedTipo] = useState(null);
   const [selectedSexo, setSelectedSexo] = useState(null);
 
+  const { saveUser, isLoading, error } = useOfflineStorage();
+
+  const router = useRouter();
+
   const handleContinue = () => setShowSecondForm(true);
+  const handleCreateAccount = async () => {
+    const newUser: User = {
+        id: uuid.v4(), // Gera ID unico
+        name,
+        cpf,
+        email,
+        celular,
+        genero: selectedGenero,
+        nascimento: date?.toISOString() || null,
+        password,
+        pets: [{
+          id: uuid.v4(),
+          name: namePet,
+          tipo: selectedTipo,
+          raca: raca,
+          sexo: selectedSexo,
+          nascimento: datePet?.toISOString() || null,
+          description: description,
+          foto: selectedImage
+        }]
+    };
+    
+    try {
+      await saveUser(newUser);
+      // Redirecionar
+      router.replace("/home");
+      setShowSecondForm(false);
+    } catch (e) {
+      alert("Erro ao criar conta: " + e);
+    }
+  };
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -147,6 +211,8 @@ export default function CriarConta() {
             placeholder="Digite a sua senha"
             obrigatorio={true}
             password={true}
+            value={password}
+            onChangeText={(e)=> setPassword(e)}
             autoCapitalize="none"
           />
           <InputText
@@ -193,6 +259,8 @@ export default function CriarConta() {
             obrigatorio={true}
             inputMode="text"
             keyboardType="default"
+            value={raca}
+            onChangeText={(e) => setRaca(e)}
           />
           <Select
             label="Sexo"
@@ -213,16 +281,21 @@ export default function CriarConta() {
             placeholder="Digite uma breve descrição do seu pet"
             obrigatorio={true}
             inputMode="text"
+            value={description}
+            onChangeText={(e) => setDescription(e)}
             keyboardType="default"
           />
 
           <View style={styles.buttonContainer}>
             <OpacityButton
               label="Criar Conta"
-              disabled={false}
+              disabled={isLoading}
               styleDisabled={{ opacity: 0.5 }}
-              onPress={handleContinue}
+              onPress={handleCreateAccount}
             />
+            {error && (
+              <Text style={{ color: "red", textAlign: "center" }}>{error}</Text>
+            )}
           </View>
         </View>
       )}

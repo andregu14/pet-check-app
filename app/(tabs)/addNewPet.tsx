@@ -1,13 +1,15 @@
-import { HighlightButton, OpacityButton } from "@/components/Button/Button";
+import { HighlightButton } from "@/components/Button/Button";
 import DatePicker from "@/components/DatePicker/DatePicker.android";
 import InputText from "@/components/InputText/InputText";
 import PhotoPicker from "@/components/PhotoPicker/PhotoPicker";
 import Select from "@/components/Select/Select";
 import { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { StatusBar } from "expo-status-bar";
+import { useGlobalSearchParams, useRouter } from "expo-router";
+import useOfflineStorage, { Pet } from "@/constants/useOfflineStorage";
+import uuid from 'react-native-uuid';
 
 const tipo = [
   { title: "Gato", value: "gato" },
@@ -27,6 +29,39 @@ export default function addNewPet() {
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
     undefined
   );
+  const [raca, setRaca] = useState("")
+  const [description, setDescription] = useState("")
+  const params = useGlobalSearchParams()
+  const userID = params.userID
+
+  const router = useRouter();
+  const { getUserById, saveUser } = useOfflineStorage();
+
+  const handleAddPet = async () => {
+    const user = await getUserById(userID)
+
+    if (user) {
+      const newPet: Pet = {
+        id: uuid.v4(),
+        name: namePet,
+        tipo: selectedTipo,
+        raca: raca,
+        sexo: selectedSexo,
+        nascimento: datePet,
+        description: description,
+        foto: selectedImage,
+      }
+
+      const updateUser = {
+        ...user,
+        pets: [...user.pets, newPet]
+      }
+
+      await saveUser(updateUser)
+      router.back()
+    }
+  }
+
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -73,6 +108,8 @@ export default function addNewPet() {
           placeholder="Digite a raça do seu pet"
           obrigatorio={true}
           inputMode="text"
+          value={raca}
+          onChangeText={setRaca}
           keyboardType="default"
         />
         <Select
@@ -95,13 +132,15 @@ export default function addNewPet() {
           obrigatorio={true}
           inputMode="text"
           keyboardType="default"
+          value={description}
+          onChangeText={setDescription}
         />
         <View style={styles.buttonContainer}>
           <HighlightButton
             label="Adicionar"
             disabled={false}
             styleDisabled={{ opacity: 0.5 }}
-            onPress={() => {}}
+            onPress={handleAddPet}
           />
         </View>
       </View>
