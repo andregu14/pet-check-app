@@ -24,20 +24,19 @@ export interface User {
   pets: Pet[];
 }
 
+export type UpdateUserPayload = Partial<Omit<User, "id" | "pets">>;
+
 type UseOfflineStorageReturn = {
-  storedData: any;
-  saveData: (key: string, data: any) => Promise<void>;
-  loadData: (key: string) => Promise<void>;
-  deleteData: (key: string) => Promise<void>;
   isLoading: boolean;
   error: string | null;
-  saveUser: (user: User) => Promise<void>,
-  getUsers: any,
-  getUserById: any,
+  saveUser: (user: User) => Promise<void>;
+  getUsers: any;
+  getUserById: any;
+  deleteUser: (userID: string) => Promise<void>;
+  updateUser: (userID: string, payload: UpdateUserPayload) => Promise<void>;
 };
 
 const useOfflineStorage = (): UseOfflineStorageReturn => {
-  const [storedData, setStoredData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -93,60 +92,61 @@ const useOfflineStorage = (): UseOfflineStorageReturn => {
     []
   );
 
-  const saveData = useCallback(async (key: string, data: any) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const jsonValue = JSON.stringify(data);
-      await AsyncStorage.setItem(key, jsonValue);
-      setStoredData(data);
-    } catch (e) {
-      setError(`Erro ao salvar dados: ${e}`);
-      console.error(`Save error: ${e}`);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const deleteUser = useCallback(
+    async (userID: string): Promise<void> => {
+      setIsLoading(true);
+      try {
+        const users = await getUsers();
+        const updateUsers = users.filter((user) => user.id !== userID);
+        await AsyncStorage.setItem("users", JSON.stringify(updateUsers));
+        console.log("Usuário deletado com sucesso");
+      } catch (e) {
+        setError(`Erro ao deletar usuario: ${e}`);
+        console.error(`Delete user error: ${e}`);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [getUsers]
+  );
 
-  const loadData = useCallback(async (key: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const jsonValue = await AsyncStorage.getItem(key);
-      const data = jsonValue ? JSON.parse(jsonValue) : null;
-      setStoredData(data);
-    } catch (e) {
-      setError(`Erro ao carregar dados: ${e}`);
-      console.error(`Load error: ${e}`);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const updateUser = useCallback(
+    async (userID: string, payload: UpdateUserPayload): Promise<void> => {
+      setIsLoading(true);
+      try {
+        const users = await getUsers();
+        const userIndex = users.findIndex((u) => u.id === userID);
 
-  const deleteData = useCallback(async (key: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      await AsyncStorage.removeItem(key);
-      setStoredData(null);
-    } catch (e) {
-      setError(`Erro ao deletar dados: ${e}`);
-      console.error(`Delete error: ${e}`);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+        if (userIndex === -1) throw new Error("Usuário não encontrado");
+
+        const updatedUser = {
+          ...users[userIndex],
+          ...payload,
+
+          id: users[userIndex].id, // mantem o id
+          pets: users[userIndex].pets, // mantem os pets
+        };
+
+        users[userIndex] = updatedUser;
+        await AsyncStorage.setItem("users", JSON.stringify(users));
+      } catch (error) {
+        setError(`Erro ao atualizar usuario: ${error}`);
+        console.error(`Update error: ${error}`);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [getUsers]
+  );
 
   return {
     saveUser,
     getUsers,
     getUserById,
-    storedData,
-    saveData,
-    loadData,
-    deleteData,
     isLoading,
     error,
+    deleteUser,
+    updateUser,
   };
 };
 
