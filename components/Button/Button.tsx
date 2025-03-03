@@ -28,11 +28,12 @@ export const HighlightButton = ({
   onPress,
   style,
   altStyle,
+  buttonStyle,
 }: HighlightButtonProps) => {
   return (
     <View style={style}>
       <TouchableHighlight
-        style={[altStyle ? styles.buttonAlt : styles.button, style]}
+        style={[altStyle ? styles.buttonAlt : styles.button, buttonStyle]}
         underlayColor={altStyle ?"rgba(138, 139, 139, 0.2)" : "rgb(19, 81, 126)"}
         onPress={onPress}
       >

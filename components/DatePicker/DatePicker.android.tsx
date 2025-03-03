@@ -18,10 +18,11 @@ export default function DatePicker({
   const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
-    if (value) {
-      setDisplayValue(formatDate(value));
-    } else {
+    // se o valor for null, limpa o displayValue
+    if (!value) {
       setDisplayValue("");
+    } else {
+      setDisplayValue(formatDate(value));
     }
   }, [value]);
 
@@ -48,6 +49,10 @@ export default function DatePicker({
 
     setDisplayValue(formattedText);
 
+    if (numbers.length === 0) {
+      onChange(null);
+    }
+
     // Converte para data se completo
     if (numbers.length === 8) {
       const [day, month, year] = formattedText.split("/");
@@ -60,13 +65,15 @@ export default function DatePicker({
       if (isValidDate(newDate)) {
         onChange(newDate);
       }
-    } else {
-      onChange(null);
     }
   };
 
   const isValidDate = (date: Date): boolean => {
-    return !isNaN(date.getTime());
+    return (
+      !isNaN(date.getTime()) &&
+      date.getFullYear() >= 1900 &&
+      date.getFullYear() <= new Date().getFullYear()
+    );
   };
 
   return (
@@ -78,7 +85,7 @@ export default function DatePicker({
           placeholder={placeholder}
           obrigatorio={obrigatorio}
           maxLength={10}
-          value={displayValue || (value ? formatDate(value) : "")}
+          value={displayValue}
           onChangeText={handleTextChange}
           inputMode="numeric"
           isfocused={isFocused}

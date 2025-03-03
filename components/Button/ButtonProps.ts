@@ -1,4 +1,5 @@
-import { TouchableOpacityProps, TouchableHighlightProps } from "react-native";
+import { TouchableOpacityProps, TouchableHighlightProps, StyleProp } from "react-native";
+import { StyleProps } from "react-native-reanimated";
 
 export type ButtonProps = TouchableOpacityProps & {
   label: string;
@@ -12,4 +13,5 @@ export type HighlightButtonProps = TouchableHighlightProps & {
   styleDisabled?: {}
   disabled?: boolean
   altStyle?: boolean
+  buttonStyle?: StyleProps
 }
