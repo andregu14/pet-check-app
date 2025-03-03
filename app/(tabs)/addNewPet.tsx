@@ -9,7 +9,7 @@ import * as ImagePicker from "expo-image-picker";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useGlobalSearchParams, useRouter } from "expo-router";
 import useOfflineStorage, { Pet } from "@/constants/useOfflineStorage";
-import uuid from 'react-native-uuid';
+import uuid from "react-native-uuid";
 
 const tipo = [
   { title: "Gato", value: "gato" },
@@ -29,16 +29,26 @@ export default function addNewPet() {
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
     undefined
   );
-  const [raca, setRaca] = useState("")
-  const [description, setDescription] = useState("")
-  const params = useGlobalSearchParams()
-  const userID = params.userID
+  const [raca, setRaca] = useState("");
+  const [description, setDescription] = useState("");
+  const params = useGlobalSearchParams();
+  const userID = params.userID;
 
   const router = useRouter();
   const { getUserById, saveUser } = useOfflineStorage();
 
+  const resetForm = () => {
+    setNamePet("");
+    setSelectedTipo(null);
+    setSelectedSexo(null);
+    setDatePet(null);
+    setSelectedImage(undefined);
+    setRaca("");
+    setDescription("");
+  };
+
   const handleAddPet = async () => {
-    const user = await getUserById(userID)
+    const user = await getUserById(userID);
 
     if (user) {
       const newPet: Pet = {
@@ -50,18 +60,22 @@ export default function addNewPet() {
         nascimento: datePet?.toLocaleDateString() || null,
         description: description,
         foto: selectedImage,
-      }
+      };
 
       const updateUser = {
         ...user,
-        pets: [...user.pets, newPet]
+        pets: [...user.pets, newPet],
+      };
+
+      try {
+        await saveUser(updateUser);
+        resetForm();
+        router.back();
+      } catch (e) {
+        alert("Erro ao adicionar pet: " + e);
       }
-
-      await saveUser(updateUser)
-      router.back()
     }
-  }
-
+  };
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
