@@ -3,44 +3,95 @@ import InfoDisplay from "@/components/InfoDisplay/InfoDisplay";
 import InputText from "@/components/InputText/InputText";
 import Select from "@/components/Select/Select";
 import { useEffect, useLayoutEffect, useState } from "react";
-import { View, StyleSheet, Text, Pressable } from "react-native";
+import { View, StyleSheet, Text, Pressable, Alert } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useNavigation } from "@react-navigation/native";
-import { Link, useGlobalSearchParams, useLocalSearchParams } from "expo-router";
+import { Link, useGlobalSearchParams, useRouter } from "expo-router";
 import useOfflineStorage, { User } from "@/constants/useOfflineStorage";
 
 const genero = [
-  { title: "Masculino", value: "M" },
-  { title: "Feminino", value: "F" },
-  { title: "Prefiro não informar", value: "NI" },
+  { title: "Masculino", value: "Masculino" },
+  { title: "Feminino", value: "Feminino" },
+  { title: "Prefiro não informar", value: "Prefiro não informar" },
 ];
 
 type HomeParams = {
-  userID: string
-}
+  userID: string;
+};
 
 export default function Settings() {
+  const [user, setUser] = useState<User | null>(null);
   const [edit, setEdit] = useState(false);
-  const [selectedGenero, setSelectedGenero] = useState(null);
+  const [selectedGenero, setSelectedGenero] = useState<string>("");
+  const [nome, setNome] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [celular, setCelular] = useState<string>("");
   const navigation = useNavigation();
-  const params = useGlobalSearchParams<HomeParams>()
-  const userID = params.userID
-  
-  const [user, setUser] = useState<User | null>(null)
-  
-  const {
-    getUserById,
-    isLoading,
-    error,
-  } = useOfflineStorage();
+  const params = useGlobalSearchParams<HomeParams>();
+  const userID = params.userID;
+
+  const router = useRouter();
+
+  const { getUserById, updateUser, isLoading, error, deleteUser } =
+    useOfflineStorage();
+
+  const handleDeleteProfile = async () => {
+    Alert.alert(
+      "Confirmar Exclusão",
+      "Tem certeza que deseja excluir o seu perfil permanentemente?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Deletar",
+          onPress: async () => {
+            try {
+              if (!userID) throw new Error("ID do usuario nao encontrado");
+              await deleteUser(userID);
+              router.replace("/");
+            } catch (e) {
+              Alert.alert("Erro", String(e));
+            }
+          },
+          style: "destructive",
+        },
+      ]
+    );
+  };
+
+  const handleUpdateProfile = async () => {
+    try {
+      if (!userID) throw new Error("ID do usuario nao encontrado");
+
+      await updateUser(userID, {
+        name: nome,
+        email: email,
+        celular: celular,
+        genero: selectedGenero,
+      });
+
+      const updatedUser = await getUserById(userID);
+
+      setUser(updatedUser);
+      setEdit(false);
+    } catch (error) {
+      Alert.alert("Erro ao salvar", String(error));
+    }
+  };
 
   useEffect(() => {
     const loadUserData = async () => {
-      const userData = await getUserById(userID)
-      setUser(userData)
-    }
-    loadUserData()
-  }, [userID]) 
+      const userData = await getUserById(userID);
+      setUser(userData);
+      setSelectedGenero(userData.genero);
+      setNome(userData.name);
+      setEmail(userData.email);
+      setCelular(userData.celular);
+    };
+    loadUserData();
+  }, [userID]);
 
   // useEffect para controlar o header
   useLayoutEffect(() => {
@@ -62,18 +113,14 @@ export default function Settings() {
           <InfoDisplay label="CPF" info={user?.cpf} />
           <InfoDisplay label="Email" info={user?.email} />
           <InfoDisplay label="DDD + Celular" info={user?.celular} />
-          <InfoDisplay
-            label="Gênero"
-            info={user?.genero}
-            select={true}
-          />
+          <InfoDisplay label="Gênero" info={user?.genero} select={true} />
           <InfoDisplay
             label="Data de nascimento"
             info={user?.nascimento}
             date={true}
           />
           <InfoDisplay label="Senha" info="*******" />
-          <Link style={styles.passwordTxt} href={"/changePassword"}>
+          <Link style={styles.passwordTxt} href={{ pathname: "/changePassword", params: { userID: userID } }} >
             Alterar Senha
           </Link>
           <HighlightButton
@@ -84,18 +131,33 @@ export default function Settings() {
             }}
             label="Alterar Perfil"
           />
+          <HighlightButton
+            buttonStyle={{ backgroundColor: "rgb(255, 44, 44)" }}
+            altStyle={true}
+            onPress={handleDeleteProfile}
+            label="Deletar Perfil"
+          />
         </View>
       ) : (
         <View style={styles.infoContainer}>
           <InputText
             label="Nome completo"
             placeholder="Nome Completo"
+            value={nome}
+            onChangeText={(text) => setNome(text)}
           ></InputText>
-          <InfoDisplay label="CPF" info="000.000.000-00" />
-          <InputText label="Email" placeholder="email@email.com"></InputText>
+          <InfoDisplay label="CPF" info={user?.cpf} />
+          <InputText
+            label="Email"
+            placeholder="email@email.com"
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+          ></InputText>
           <InputText
             label="DDD + Celular"
             placeholder="(00) 00000 0000"
+            value={celular}
+            onChangeText={(text) => setCelular(text)}
           ></InputText>
           <Select
             data={genero}
@@ -107,14 +169,12 @@ export default function Settings() {
           />
           <InfoDisplay
             label="Data de nascimento"
-            info="dd/mm/aaaa"
+            info={user?.nascimento}
             date={true}
           />
           <HighlightButton
             style={styles.btnContainer}
-            onPress={() => {
-              setEdit(false);
-            }}
+            onPress={handleUpdateProfile}
             label="Salvar Alterações"
           />
         </View>
