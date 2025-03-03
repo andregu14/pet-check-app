@@ -129,6 +129,11 @@ export default function CriarConta() {
     }
   };
 
+  // mantem a data atual se o campo for parciamente apagado
+  const handleDateChange = (newDate: Date | null) => {
+    setDate(newDate || date) // mantem o valor anterior se newDate for null
+  }
+
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
@@ -203,7 +208,7 @@ export default function CriarConta() {
           <DatePicker
             label="Data de nascimento"
             placeholder="dd/mm/aaaa"
-            onChange={setDate}
+            onChange={handleDateChange}
             value={date}
           />
           <InputText
