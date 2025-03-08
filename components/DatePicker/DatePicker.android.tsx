@@ -81,6 +81,7 @@ export default function DatePicker({
       <View style={styles.inputContainer}>
         <InputText
           {...props}
+          onPress={() => setIsFocused(true)}
           label={label}
           placeholder={placeholder}
           obrigatorio={obrigatorio}
@@ -88,8 +89,6 @@ export default function DatePicker({
           value={displayValue}
           onChangeText={handleTextChange}
           inputMode="numeric"
-          isfocused={isFocused}
-          onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
         />
         <TouchableOpacity

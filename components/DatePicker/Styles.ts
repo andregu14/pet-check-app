@@ -12,6 +12,10 @@ const styles = StyleSheet.create({
       right: 10,
       top: "50%",
     },
+    inputContainerFocused: {
+      borderColor: "#176299",
+      borderWidth: 2.7,
+    }
   });
 
 export default styles
