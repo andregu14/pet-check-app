@@ -1,6 +1,6 @@
 import React from "react";
-import { Link, router, Tabs } from "expo-router";
-import { Pressable, TouchableOpacity } from "react-native";
+import { router, Tabs } from "expo-router";
+import { TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
