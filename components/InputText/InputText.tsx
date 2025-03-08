@@ -11,11 +11,29 @@ export default function InputText({
   style,
   obrigatorio = false,
   date,
+  refe,
+  errorMessage,
+  useValidation = false,
+  isValid = null,
+  value,
+  onChangeText,
+  onBlur: propOnBlur,
   ...props
 }: InputTextProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [value, setValue] = useState("");
+
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleBlur = (e: any) => {
+    setIsFocused(false);
+    // Propaga o evento onBlur para o componente pai
+    if (propOnBlur) {
+      propOnBlur(e);
+    }
+  };
 
   const renderPasswordIcon = () => {
     if (!password) return null;
@@ -47,11 +65,15 @@ export default function InputText({
         <View
           style={[
             styles.textInputInnerContainer,
-            (isFocused || props.isfocused) &&
-              styles.textInputInnerContainerFocused,
+            isFocused && styles.textInputInnerContainerFocused,
+            useValidation && { 
+              ...(!isValid ? styles.textInputInnerContainerError : 
+                  (isValid ? styles.textInputInnerContainerValid : {}))
+            }
           ]}
         >
           <TextInput
+            ref={refe}
             style={[
               styles.textInput,
               { flex: 1 },
@@ -65,16 +87,19 @@ export default function InputText({
                   fontWeight: "bold",
                 },
             ]}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             placeholder={placeholder}
             secureTextEntry={password && !showPassword}
-            onChangeText={setValue}
+            onChangeText={onChangeText}
             value={value}
             {...props}
           />
           {renderPasswordIcon()}
         </View>
+        {!isValid && useValidation && errorMessage && (
+          <Text style={styles.errorText}>{errorMessage}</Text>
+        )}
       </View>
     </View>
   );

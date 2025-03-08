@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, TextInput } from "react-native";
 
 const styles = StyleSheet.create({
   textInput: {
@@ -35,6 +35,19 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     color: "rgba(0, 0, 0, 0.5)",
     fontSize: 10,
+  },
+  textInputInnerContainerError: {
+    borderColor: "red",
+    borderWidth: 1,
+  },
+  textInputInnerContainerValid: {
+    borderColor: "green",
+    borderWidth: 1,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginTop: 4,
   }
 });
 
