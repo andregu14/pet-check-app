@@ -4,14 +4,17 @@ import * as Font from "expo-font";
 import InputText from "@/components/InputText/InputText";
 import { HighlightButton } from "@/components/Button/Button";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useOfflineStorage from "@/constants/useOfflineStorage";
+import Toast, { toastConfig } from "@/components/ToastMessage/ToastMessage";
 
 export default function TabOneScreen() {
   const [cpfOrEmail, setCpfOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [inputLenght, setInputLenght] = useState(100);
   const router = useRouter();
+  const cpfRef = useRef<any>(null)
+  const passwordRef = useRef<any>(null)
 
   const { getUsers, isLoading, error } = useOfflineStorage();
   const handleLogin = async () => {
@@ -23,7 +26,18 @@ export default function TabOneScreen() {
     if (user) {
       router.navigate({ pathname: "/home", params: { userID: user.id } });
     } else {
-      alert("Credenciais invalidas");
+      Toast.show({
+        type: "error",
+        text1: "Usuário ou senha inválidos",
+        text2: "Verifique as informações e tente novamente",
+        visibilityTime: 4000,
+      })
+
+      // Limpa e disfoca os campos
+      setCpfOrEmail("")
+      setPassword("")
+      cpfRef.current?.blur()
+      passwordRef.current?.blur()
     }
   };
 
@@ -70,6 +84,7 @@ export default function TabOneScreen() {
       <View style={styles.loginContainer}>
         <InputText
           style={styles.input}
+          refe={cpfRef}
           label="E-mail ou CPF"
           placeholder="Digite seu e-mail ou CPF"
           inputMode="email"
@@ -81,15 +96,20 @@ export default function TabOneScreen() {
           value={cpfOrEmail}
           maxLength={inputLenght}
           autoComplete="email"
+          accessibilityLabel="Campo de e-mail ou CPF"
+          accessibilityHint="Digite seu e-mail ou CPF cadastrado"
         />
         <InputText
           label="Senha"
+          refe={passwordRef}
           placeholder="Digite sua senha"
           password={true}
           autoCapitalize="none"
           autoComplete="password"
           value={password}
           onChangeText={setPassword}
+          accessibilityLabel="Campo de senha"
+          accessibilityHint="Digite sua senha cadastrada"
         />
         <Text
           style={styles.passwordRecoverText}
@@ -110,6 +130,7 @@ export default function TabOneScreen() {
         </Text>
       </View>
       <StatusBar barStyle={"default"} backgroundColor={"#176299"} />
+      <Toast config={toastConfig} />
     </View>
   );
 }
