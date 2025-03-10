@@ -3,6 +3,7 @@ import SelectDropdown from "react-native-select-dropdown";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SelectProps } from "./SelectProps";
 import styles from "./Styles";
+import { useEffect, useState } from "react";
 
 export default function Select({
   label,
@@ -12,7 +13,18 @@ export default function Select({
   style,
   onSelect,
   value,
+  errorTxt = null,
 }: SelectProps) {
+  const [isValid, setIsValid] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    if (value !== undefined && value !== null) {
+      setIsValid(true)
+    } else {
+      setIsValid(obrigatorio ? false : null)
+    }
+  }, [value, obrigatorio])
+
   return (
     <View style={style}>
       <View style={styles.textLabelContainer}>
@@ -21,11 +33,12 @@ export default function Select({
           <Text style={styles.obrigatorio}> obrigatório</Text>
         ) : undefined}
       </View>
-      <View style={styles.selectContainer}>
+      <View style={[styles.selectContainer, errorTxt && styles.selectContainerError, isValid && styles.selectContainerValid]}>
         <SelectDropdown
           data={data}
           onSelect={(selectedItem) => {
             onSelect?.(selectedItem)
+            setIsValid(true)
           }}
           renderButton={(selectedItem, isOpened) => {
             const currentItem = data.find(item => item.value === value)
@@ -63,6 +76,9 @@ export default function Select({
           dropdownStyle={styles.dropdownMenuStyle}
         />
       </View>
+      {errorTxt && !isValid && (
+        <Text style={styles.errorTxt}>{errorTxt}</Text>
+      )}
     </View>
   );
 }

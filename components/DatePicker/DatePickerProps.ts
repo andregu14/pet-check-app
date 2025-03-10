@@ -6,5 +6,8 @@ export type DatePickerProps = {
     obrigatorio?: boolean;
     onChange: (date: Date | null) => void;
     value: Date | null;
+    errorMessage?: string
+    isValid?: boolean | null
+    useValidation?: boolean
   } & Pick<TextInputProps, "onFocus" | "onBlur">;
   

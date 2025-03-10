@@ -111,6 +111,7 @@ export default function CriarConta() {
     sexo: "",
     nascimentoPet: "",
     description: "",
+    genero: "",
   });
   const [formTouched, setFormTouched] = useState({
     name: false,
@@ -173,6 +174,12 @@ export default function CriarConta() {
       case "description":
         error = Validators.required(value);
         break;
+      case "nascimento":
+        error = Validators.date(value);
+        break;
+      case "nascimentoPet":
+        error = Validators.date(value);
+        break;
     }
 
     setFormErrors((prev) => ({ ...prev, [name]: error }));
@@ -221,6 +228,22 @@ export default function CriarConta() {
       confirmPassword,
       "As senhas não coincidem"
     );
+    let nascimentoValid = true;
+    // Se date não for nulo, validamos a data
+    if (date) {
+      nascimentoValid = validateField(
+        "nascimento",
+        date.toLocaleDateString("pt-BR"),
+        "Data inválida"
+      );
+    } else {
+      // Se estiver vazio, verificamos se há algum erro (talvez de uma validação anterior)
+      nascimentoValid = !formErrors.nascimento;
+    }
+    const generoValid = selectedGenero === null ? false : true;
+
+    if (!generoValid)
+      setFormErrors((prev) => ({ ...prev, genero: "Selecione o seu gênero" }));
 
     // Verifica se TODOS os campos são válidos
     const allFieldsValid =
@@ -229,7 +252,9 @@ export default function CriarConta() {
       emailValid &&
       celularValid &&
       passwordValid &&
-      confirmPasswordValid;
+      confirmPasswordValid &&
+      nascimentoValid &&
+      generoValid;
 
     if (!allFieldsValid) {
       Toast.show({
@@ -270,25 +295,30 @@ export default function CriarConta() {
       description,
       "Digite uma descrição para o seu pet"
     );
-
-    // Verifica error especificos nos campos sem validacao textual
-    let tipoValid = true;
-    let sexoValid = true;
-
-    if (!selectedTipo) {
-      setFormErrors((prev) => ({ ...prev, tipo: "Selecione o tipo do pet" }));
-      tipoValid = false;
-      setFormTouched((prev) => ({ ...prev, tipo: true }));
+    let nascimentoPetValid = true;
+    if (datePet) {
+      nascimentoPetValid = validateField(
+        "nascimentoPet",
+        datePet.toLocaleDateString("pt-BR"),
+        "Data inválida"
+      );
+    } else {
+      nascimentoPetValid = !formErrors.nascimentoPet;
     }
 
-    if (!selectedSexo) {
+    const tipoValid = selectedTipo === null ? false : true;
+    const sexoValid = selectedSexo === null ? false : true;
+
+    if (!tipoValid)
+      setFormErrors((prev) => ({
+        ...prev,
+        tipo: "Selecione o tipo do seu pet",
+      }));
+    if (!sexoValid)
       setFormErrors((prev) => ({
         ...prev,
         sexo: "Selecione o sexo do seu pet",
       }));
-      sexoValid = false;
-      setFormTouched((prev) => ({ ...prev, sexo: true }));
-    }
 
     // Verifica se TODOS os campos são válidos
     const allFieldsValid =
@@ -460,12 +490,22 @@ export default function CriarConta() {
               obrigatorio={true}
               onSelect={(item) => setSelectedGenero(item.value)}
               value={selectedGenero}
+              errorTxt={formErrors.genero}
             />
             <DatePicker
               label="Data de nascimento"
               placeholder="dd/mm/aaaa"
-              onChange={handleDateChange}
+              onChange={(newDate) => {
+                handleDateChange(newDate);
+                validateField(
+                  "nascimento",
+                  newDate?.toLocaleDateString("pt-BR") || ""
+                );
+              }}
               value={date}
+              errorMessage={formErrors.nascimento}
+              isValid={formTouched.nascimento ? !formErrors.nascimento : null}
+              useValidation={formTouched.nascimento}
             />
             <InputText
               label="Senha"
@@ -544,6 +584,7 @@ export default function CriarConta() {
               data={tipo}
               onSelect={(item) => setSelectedTipo(item.value)}
               value={selectedTipo}
+              errorTxt={formErrors.tipo}
             />
             <InputText
               label="Raça"
@@ -570,12 +611,24 @@ export default function CriarConta() {
               data={sexo}
               onSelect={(item) => setSelectedSexo(item.value)}
               value={selectedSexo}
+              errorTxt={formErrors.sexo}
             />
             <DatePicker
               label="Data de nascimento do seu pet"
               placeholder="dd/mm/aaaa"
-              onChange={handleDatePetChange}
+              onChange={(newDate) => {
+                handleDatePetChange(newDate);
+                validateField(
+                  "nascimentoPet",
+                  newDate?.toLocaleDateString("pt-BR") || ""
+                );
+              }}
               value={datePet}
+              errorMessage={formErrors.nascimentoPet}
+              isValid={
+                formTouched.nascimentoPet ? !formErrors.nascimentoPet : null
+              }
+              useValidation={formTouched.nascimentoPet}
             />
             <InputText
               label="Descrição"

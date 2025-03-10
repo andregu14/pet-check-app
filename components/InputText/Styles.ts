@@ -38,11 +38,11 @@ const styles = StyleSheet.create({
   },
   textInputInnerContainerError: {
     borderColor: "red",
-    borderWidth: 1,
+    borderWidth: 1.5,
   },
   textInputInnerContainerValid: {
     borderColor: "green",
-    borderWidth: 1,
+    borderWidth: 1.5,
   },
   errorText: {
     color: "red",

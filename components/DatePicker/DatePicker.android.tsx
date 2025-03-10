@@ -12,22 +12,65 @@ export default function DatePicker({
   obrigatorio = false,
   onChange,
   value,
+  errorMessage,
+  isValid,
+  useValidation,
   ...props
 }: DatePickerProps) {
   const [displayValue, setDisplayValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [localError, setLocalError] = useState("");
+  const [localIsValid, setLocalIsValid] = useState<boolean | null>(null);
 
   useEffect(() => {
     // se o valor for null, limpa o displayValue
     if (!value) {
       setDisplayValue("");
+      setLocalIsValid(null);
+      setLocalError("");
     } else {
       setDisplayValue(formatDate(value));
+      setLocalIsValid(true);
+      setLocalError("");
     }
   }, [value]);
 
   const formatDate = (date: Date): string => {
     return date.toLocaleDateString("pt-BR");
+  };
+
+  const validateDateString = (dateStr: string): boolean => {
+    // Se estiver vazio, consideramos como válido (não preenchido)
+    if (!dateStr) return true;
+
+    // Verifica formato DD/MM/AAAA
+    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) return false;
+
+    const [day, month, year] = dateStr.split("/").map(Number);
+
+    // Validações básicas
+    if (
+      day < 1 ||
+      day > 31 ||
+      month < 1 ||
+      month > 12 ||
+      year < 1900 ||
+      year > new Date().getFullYear()
+    ) {
+      return false;
+    }
+
+    // Verificar dias por mês
+    const lastDayOfMonth = new Date(year, month, 0).getDate();
+    if (day > lastDayOfMonth) return false;
+
+    // Criar objeto Date e confirmar que é uma data válida
+    const date = new Date(year, month - 1, day);
+    return (
+      date.getFullYear() === year &&
+      date.getMonth() === month - 1 &&
+      date.getDate() === day
+    );
   };
 
   const handleTextChange = (text: string) => {
@@ -49,22 +92,32 @@ export default function DatePicker({
 
     setDisplayValue(formattedText);
 
-    if (numbers.length === 0) {
-      onChange(null);
-    }
+    // Validação enquanto digita
+    if (formattedText.length > 0) {
+      // Se for um formato parcial, não validamos ainda
+      if (formattedText.length < 10) {
+        setLocalIsValid(null);
+        setLocalError("");
+      } else {
+        // Formato completo, podemos validar
+        const isDateValid = validateDateString(formattedText);
+        setLocalIsValid(isDateValid);
 
-    // Converte para data se completo
-    if (numbers.length === 8) {
-      const [day, month, year] = formattedText.split("/");
-      const newDate = new Date(
-        parseInt(year),
-        parseInt(month) - 1,
-        parseInt(day)
-      );
-
-      if (isValidDate(newDate)) {
-        onChange(newDate);
+        if (isDateValid) {
+          setLocalError("");
+          const [day, month, year] = formattedText.split("/").map(Number);
+          const newDate = new Date(year, month - 1, day);
+          onChange(newDate);
+        } else {
+          setLocalError("Data inválida");
+          onChange(null);
+        }
       }
+    } else {
+      // Campo vazio
+      setLocalIsValid(null);
+      setLocalError("");
+      onChange(null);
     }
   };
 
@@ -75,6 +128,16 @@ export default function DatePicker({
       date.getFullYear() <= new Date().getFullYear()
     );
   };
+
+  const handlePickerDate = (selectedDate: Date | undefined) => {
+    if (selectedDate) {
+      const isValid = isValidDate(selectedDate);
+      onChange(isValid ? selectedDate : null);
+      setDisplayValue(isValid ? formatDate(selectedDate) : "");
+      setLocalIsValid(isValid);
+      setLocalError(isValid ? "" : "Data inválida");
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -89,7 +152,9 @@ export default function DatePicker({
           value={displayValue}
           onChangeText={handleTextChange}
           inputMode="numeric"
-          onBlur={() => setIsFocused(false)}
+          errorMessage={localError || errorMessage}
+          useValidation={useValidation ?? true}
+          isValid={isValid !== undefined ? isValid : localIsValid}
         />
         <TouchableOpacity
           style={styles.iconButton}
@@ -98,9 +163,8 @@ export default function DatePicker({
               value: value || new Date(),
               mode: "date",
               onChange: (event, selectedDate) => {
-                if (event.type === "set" && selectedDate) {
-                  onChange(selectedDate);
-                  setDisplayValue(formatDate(selectedDate));
+                if (event.type === "set") {
+                  handlePickerDate(selectedDate);
                 }
               },
             });
