@@ -262,6 +262,7 @@ export default function CriarConta() {
         text1: "Dados Inválidos",
         text2: "Preencha todos os campos corretamente",
         visibilityTime: 4000,
+        topOffset: 1,
       });
       return;
     }
@@ -330,6 +331,7 @@ export default function CriarConta() {
         text1: "Dados Inválidos",
         text2: "Preencha todos os campos corretamente",
         visibilityTime: 4000,
+        topOffset: 1,
       });
       return;
     }
@@ -368,6 +370,7 @@ export default function CriarConta() {
         text1: "Erro ao criar conta",
         text2: e.toString(),
         visibilityTime: 4000,
+        topOffset: 1,
       });
     }
   };
@@ -391,7 +394,13 @@ export default function CriarConta() {
     if (!result.canceled) {
       setSelectedImage(result.assets[0].uri);
     } else {
-      alert("Selecione uma imagem");
+      Toast.show({
+        type: "error",
+        text1: "Selecione uma imagem",
+        text2: "Por favor selecione uma imagem",
+        visibilityTime: 4000,
+        topOffset: 1,
+      });
     }
   };
 
