@@ -8,6 +8,8 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { useNavigation } from "@react-navigation/native";
 import { Link, useGlobalSearchParams, useRouter } from "expo-router";
 import useOfflineStorage, { User } from "@/constants/useOfflineStorage";
+import Toast from "react-native-toast-message";
+import { toastConfig } from "@/components/ToastMessage/ToastMessage";
 
 const genero = [
   { title: "Masculino", value: "Masculino" },
@@ -76,8 +78,21 @@ export default function Settings() {
 
       setUser(updatedUser);
       setEdit(false);
-    } catch (error) {
-      Alert.alert("Erro ao salvar", String(error));
+      Toast.show({
+        type: "success",
+        text1: "Dados Alterados",
+        text2: "Dados salvos com sucesso",
+        visibilityTime: 4000,
+        topOffset: 1,
+      });
+    } catch (error: any) {
+      Toast.show({
+        type: "error",
+        text1: "Erro ao criar conta",
+        text2: error.toString(),
+        visibilityTime: 4000,
+        topOffset: 1,
+      });
     }
   };
 
@@ -106,80 +121,87 @@ export default function Settings() {
   }, [edit, navigation]);
 
   return (
-    <KeyboardAwareScrollView style={styles.container}>
-      {!edit ? (
-        <View style={styles.infoContainer}>
-          <InfoDisplay label="Nome completo" info={user?.name} />
-          <InfoDisplay label="CPF" info={user?.cpf} />
-          <InfoDisplay label="Email" info={user?.email} />
-          <InfoDisplay label="DDD + Celular" info={user?.celular} />
-          <InfoDisplay label="Gênero" info={user?.genero} select={true} />
-          <InfoDisplay
-            label="Data de nascimento"
-            info={user?.nascimento}
-            date={true}
-          />
-          <InfoDisplay label="Senha" info="*******" />
-          <Link style={styles.passwordTxt} href={{ pathname: "/changePassword", params: { userID: userID } }} >
-            Alterar Senha
-          </Link>
-          <HighlightButton
-            style={styles.btnContainer}
-            altStyle={true}
-            onPress={() => {
-              setEdit(true);
-            }}
-            label="Alterar Perfil"
-          />
-          <HighlightButton
-            buttonStyle={{ backgroundColor: "rgb(255, 44, 44)" }}
-            altStyle={true}
-            onPress={handleDeleteProfile}
-            label="Deletar Perfil"
-          />
-        </View>
-      ) : (
-        <View style={styles.infoContainer}>
-          <InputText
-            label="Nome completo"
-            placeholder="Nome Completo"
-            value={nome}
-            onChangeText={(text) => setNome(text)}
-          ></InputText>
-          <InfoDisplay label="CPF" info={user?.cpf} />
-          <InputText
-            label="Email"
-            placeholder="email@email.com"
-            value={email}
-            onChangeText={(text) => setEmail(text)}
-          ></InputText>
-          <InputText
-            label="DDD + Celular"
-            placeholder="(00) 00000 0000"
-            value={celular}
-            onChangeText={(text) => setCelular(text)}
-          ></InputText>
-          <Select
-            data={genero}
-            label="Gênero"
-            placeholder="Selecione o seu gênero"
-            obrigatorio={true}
-            onSelect={(item) => setSelectedGenero(item.value)}
-            value={selectedGenero}
-          />
-          <InfoDisplay
-            label="Data de nascimento"
-            info={user?.nascimento}
-            date={true}
-          />
-          <HighlightButton
-            style={styles.btnContainer}
-            onPress={handleUpdateProfile}
-            label="Salvar Alterações"
-          />
-        </View>
-      )}
-    </KeyboardAwareScrollView>
+    <>
+      <KeyboardAwareScrollView style={styles.container}>
+        {!edit ? (
+          <View style={styles.infoContainer}>
+            <InfoDisplay label="Nome completo" info={user?.name} />
+            <InfoDisplay label="CPF" info={user?.cpf} />
+            <InfoDisplay label="Email" info={user?.email} />
+            <InfoDisplay label="DDD + Celular" info={user?.celular} />
+            <InfoDisplay label="Gênero" info={user?.genero} select={true} />
+            <InfoDisplay
+              label="Data de nascimento"
+              info={user?.nascimento}
+              date={true}
+            />
+            <InfoDisplay label="Senha" info="*******" />
+            <Link
+              style={styles.passwordTxt}
+              href={{ pathname: "/changePassword", params: { userID: userID } }}
+            >
+              Alterar Senha
+            </Link>
+            <HighlightButton
+              style={styles.btnContainer}
+              altStyle={true}
+              onPress={() => {
+                setEdit(true);
+              }}
+              label="Alterar Perfil"
+            />
+            <HighlightButton
+              buttonStyle={{ backgroundColor: "rgb(255, 44, 44)" }}
+              altStyle={true}
+              onPress={handleDeleteProfile}
+              label="Deletar Perfil"
+            />
+          </View>
+        ) : (
+          <View style={styles.infoContainer}>
+            <InputText
+              label="Nome completo"
+              placeholder="Nome Completo"
+              value={nome}
+              onChangeText={(text) => setNome(text)}
+            ></InputText>
+            <InfoDisplay label="CPF" info={user?.cpf} />
+            <InputText
+              label="Email"
+              placeholder="email@email.com"
+              value={email}
+              onChangeText={(text) => setEmail(text)}
+            ></InputText>
+            <InputText
+              label="DDD + Celular"
+              placeholder="(00) 00000 0000"
+              value={celular}
+              onChangeText={(text) => setCelular(text)}
+            ></InputText>
+            <Select
+              data={genero}
+              label="Gênero"
+              placeholder="Selecione o seu gênero"
+              obrigatorio={true}
+              onSelect={(item) => setSelectedGenero(item.value)}
+              value={selectedGenero}
+              useValidation={false}
+            />
+            <InfoDisplay
+              label="Data de nascimento"
+              info={user?.nascimento}
+              date={true}
+            />
+            <HighlightButton
+              style={styles.btnContainer}
+              onPress={handleUpdateProfile}
+              label="Salvar Alterações"
+            />
+          </View>
+        )}
+      </KeyboardAwareScrollView>
+      <Toast config={toastConfig} />
+    </>
   );
 }
 
