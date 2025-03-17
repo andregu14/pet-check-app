@@ -14,4 +14,5 @@ export type SelectProps = {
   value?: any
   onSelect?: (value: any) => void
   errorTxt?: string | undefined | null
+  useValidation?: boolean
 };

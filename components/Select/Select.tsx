@@ -14,6 +14,7 @@ export default function Select({
   onSelect,
   value,
   errorTxt = null,
+  useValidation
 }: SelectProps) {
   const [isValid, setIsValid] = useState<boolean | null>(null)
 
@@ -33,7 +34,7 @@ export default function Select({
           <Text style={styles.obrigatorio}> obrigatório</Text>
         ) : undefined}
       </View>
-      <View style={[styles.selectContainer, errorTxt && styles.selectContainerError, isValid && styles.selectContainerValid]}>
+      <View style={[styles.selectContainer, errorTxt && (useValidation !== false) &&styles.selectContainerError, isValid && (useValidation !== false) && styles.selectContainerValid]}>
         <SelectDropdown
           data={data}
           onSelect={(selectedItem) => {
