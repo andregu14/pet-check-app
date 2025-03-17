@@ -9,8 +9,12 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
+import {
+  SourceSerifPro_900Black,
+} from "@expo-google-fonts/source-serif-pro";
 
 import { useColorScheme } from "@/components/useColorScheme";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -31,6 +35,7 @@ export default function RootLayout() {
     MaterialSymbols: require("@/assets/fonts/MaterialSymbolsOutlined-Regular.ttf"),
     MaterialSymbolsFilled: require("@/assets/fonts/MaterialSymbolsOutlined_Filled-Regular.ttf"),
     ...FontAwesome.font,
+    SourceSerifPro_900Black,
   });
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
@@ -55,41 +60,43 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack
-        screenOptions={{
-          gestureEnabled: true,
-          gestureDirection: "horizontal",
-          presentation: "card",
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="esqueci-senha"
-          options={{
-            title: "ESQUECI MINHA SENHA",
-            headerTitleStyle: { fontSize: 16, fontWeight: "bold" },
-            headerShown: true,
+    <SafeAreaProvider>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack
+          screenOptions={{
+            gestureEnabled: true,
+            gestureDirection: "horizontal",
+            presentation: "card",
           }}
-        />
-        <Stack.Screen
-          name="criar-conta"
-          options={{
-            title: "CRIAR CONTA",
-            headerTitleStyle: { fontSize: 16, fontWeight: "bold" },
-            headerShown: true,
-          }}
-        />
-        <Stack.Screen
-          name="changePassword"
-          options={{
-            title: "ALTERAR SENHA",
-            headerTitleStyle: { fontSize: 16, fontWeight: "bold" },
-            headerShown: true,
-          }}
-        />
-      </Stack>
-    </ThemeProvider>
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="esqueci-senha"
+            options={{
+              title: "ESQUECI MINHA SENHA",
+              headerTitleStyle: { fontSize: 16, fontWeight: "bold" },
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="criar-conta"
+            options={{
+              title: "CRIAR CONTA",
+              headerTitleStyle: { fontSize: 16, fontWeight: "bold" },
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="changePassword"
+            options={{
+              title: "ALTERAR SENHA",
+              headerTitleStyle: { fontSize: 16, fontWeight: "bold" },
+              headerShown: true,
+            }}
+          />
+        </Stack>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
