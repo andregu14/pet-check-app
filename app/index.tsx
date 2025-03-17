@@ -13,8 +13,8 @@ export default function TabOneScreen() {
   const [password, setPassword] = useState("");
   const [inputLenght, setInputLenght] = useState(100);
   const router = useRouter();
-  const cpfRef = useRef<any>(null)
-  const passwordRef = useRef<any>(null)
+  const cpfRef = useRef<any>(null);
+  const passwordRef = useRef<any>(null);
 
   const { getUsers, isLoading, error } = useOfflineStorage();
   const handleLogin = async () => {
@@ -31,13 +31,12 @@ export default function TabOneScreen() {
         text1: "Usuário ou senha inválidos",
         text2: "Verifique as informações e tente novamente",
         visibilityTime: 4000,
-      })
+      });
 
       // Limpa e disfoca os campos
-      setCpfOrEmail("")
-      setPassword("")
-      cpfRef.current?.blur()
-      passwordRef.current?.blur()
+      setPassword("");
+      cpfRef.current?.blur();
+      passwordRef.current?.blur();
     }
   };
 
@@ -112,7 +111,7 @@ export default function TabOneScreen() {
           accessibilityHint="Digite sua senha cadastrada"
         />
         <Text
-          style={styles.passwordRecoverText}
+          style={[styles.passwordRecoverText]}
           onPress={() => router.push("/esqueci-senha")}
         >
           Esqueci minha senha
@@ -135,7 +134,6 @@ export default function TabOneScreen() {
   );
 }
 
-// Mantenha os estilos conforme definido anteriormente
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#176299",
